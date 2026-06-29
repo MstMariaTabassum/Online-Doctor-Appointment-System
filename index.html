@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doctor Appointment System</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .loading {
+            text-align: center;
+            padding: 50px;
+            font-size: 18px;
+            color: #3498db;
+        }
+        .no-doctors {
+            text-align: center;
+            padding: 50px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        .no-doctors a {
+            color: #3498db;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">Doctor Appointment</div>
+            <ul class="nav-links">
+                <li><a href="index.html" class="active">Home</a></li>
+                <li><a href="#doctors">Doctors</a></li>
+                <li><a href="#features">Features</a></li>
+                <li><a href="login.html" class="btn-login">Login</a></li>
+                <li><a href="register.html" class="btn-register">Register</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <div class="container">
+            <h1>Book Your Doctor Appointment Online</h1>
+            <p>Easy, fast and secure way to schedule appointments with the best doctors</p>
+            <a href="register.html" class="btn-primary">Get Started</a>
+        </div>
+    </header>
+
+    <section id="doctors" class="doctors">
+        <div class="container">
+            <h2>Our Doctors</h2>
+            <div id="doctorsContainer">
+                <div class="loading" id="loadingDoctors">
+                    <h3>Loading our expert doctors...</h3>
+                    <p>Please wait a moment</p>
+                </div>
+                <div class="doctors-grid" id="doctorsList" style="display: none;">
+                    <!-- Doctors will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="features" class="features">
+        <div class="container">
+            <h2>Why Choose Us?</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h3>Easy Booking</h3>
+                    <p>Book appointments in just a few clicks</p>
+                </div>
+                <div class="feature-card">
+                    <h3>24/7 Available</h3>
+                    <p>Book anytime from anywhere</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Expert Doctors</h3>
+                    <p>Qualified and experienced doctors</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>&copy; Our Team have All rights & reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Loading doctors...');
+            loadDoctors();
+        });
+
+        function loadDoctors() {
+            fetch('php/get_doctors.php')
+                .then(response => {
+                    console.log('Response status:', response.status);
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Doctors data:', data);
+                    
+                    const loadingDiv = document.getElementById('loadingDoctors');
+                    const doctorsList = document.getElementById('doctorsList');
+                    
+                    loadingDiv.style.display = 'none';
+                    
+                    if (data && data.length > 0) {
+                        doctorsList.style.display = 'grid';
+                        
+                        data.forEach(doctor => {
+                            const doctorCard = document.createElement('div');
+                            doctorCard.className = 'doctor-card';
+                            doctorCard.innerHTML = `
+                                <h3>Dr. ${doctor.name}</h3>
+                                <p><strong>Specialization:</strong> ${doctor.specialization}</p>
+                                <p><strong>Experience:</strong> ${doctor.experience} years</p>
+                                <p><strong>Consultation Fee:</strong> $${doctor.consultation_fee}</p>
+                                <a href="login.html" class="btn-login" style="display: block; text-align: center; margin-top: 15px; padding: 10px;">
+                                    Book Appointment
+                                </a>
+                            `;
+                            doctorsList.appendChild(doctorCard);
+                        });
+                    } else {
+                        // No doctors found
+                        doctorsList.style.display = 'block';
+                        doctorsList.innerHTML = `
+                            <div class="no-doctors">
+                                <h3>No Doctors Available Yet</h3>
+                                <p>We're setting up our expert team. Please check back soon!</p>
+                                <p>For testing, you can <a href="php/add_sample_doctors.php" target="_blank">add sample doctors</a></p>
+                            </div>
+                        `;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('loadingDoctors').innerHTML = `
+                        <div class="no-doctors">
+                            <h3>Error Loading Doctors</h3>
+                            <p>${error.message}</p>
+                            <button onclick="loadDoctors()" style="padding: 10px 20px; background: #3498db; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                                Try Again
+                            </button>
+                        </div>
+                    `;
+                });
+        }
+    </script>
+</body>
+</html>
